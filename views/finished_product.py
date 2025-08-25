@@ -27,7 +27,7 @@ def get_data():
     return df
 
 
-@st.cache_data(show_spinner="Cargando images...")
+@st.cache_data(show_spinner="Cargando images...",ttl=3600)
 def get_images():
     """Cargar solo metadatos de imágenes para optimizar rendimiento"""
     access_token = get_access_token_alza()
