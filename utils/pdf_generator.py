@@ -147,10 +147,10 @@ class QualityControlReportGenerator:
         
         # FCL basic information
         info_data = [
-            ['FCL:', f"{fcl_data.get('N° FCL', 'N/A')}"],#, 'Empresa:', f'{fcl_data.get('EMPRESA', 'N/A')}'
-            ['Productor:',  f'{fcl_data.get('PRODUCTOR', 'N/A')}', 'Variedad:', f'{fcl_data.get('VARIEDAD', 'N/A')}'],
-            ['Presentación:',  f'{fcl_data.get('PRESENTACION', 'N/A')}', 'Destino:', f'{fcl_data.get('DESTINO', 'N/A')}'],
-            ['Brix:',  f'{fcl_data.get('BRIX', 'N/A')}', 'Acidez:', f'{fcl_data.get('ACIDEZ', 'N/A')}'],
+            ['FCL:', f"{fcl_data.get('N° FCL', 'N/A')}"],#, 'Empresa:', f"{fcl_data.get('EMPRESA', 'N/A')}"
+            ['Productor:',  f"{fcl_data.get('PRODUCTOR', 'N/A')}", 'Variedad:', f"{fcl_data.get('VARIEDAD', 'N/A')}"],
+            ['Presentación:',  f"{fcl_data.get('PRESENTACION', 'N/A')}", 'Destino:', f"{fcl_data.get('DESTINO', 'N/A')}"],
+            ['Brix:',  f"{fcl_data.get('BRIX', 'N/A')}", 'Acidez:', f"{fcl_data.get('ACIDEZ', 'N/A')}"],
         ]
         
         info_table = Table(info_data, colWidths=[1*inch, 2.8*inch, 1*inch, 2.8*inch], hAlign='LEFT')#colWidths=[0.5*inch, 2.5*inch, 0.5*inch, 2.5*inch]
