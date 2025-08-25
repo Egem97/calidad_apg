@@ -118,7 +118,7 @@ def clean_data():
     #img_df = get_images()
 
     #df = df.merge(img_df, left_on="N° FCL", right_on="folder_name", how="left")
-    
+    df = df[df["EMPRESA"] == "SAN LUCAR S.A."]
     
     return df
 
@@ -193,8 +193,7 @@ def show_finished_product():
     #with col2:
     #    empresa_filter = st.selectbox("Productor", ["Todos"] + list(df["EMPRESA"].unique()))
     
-    with col4:
-        st.metric("Total FCL", f"{len(df)}")
+    
     
     
     
@@ -216,7 +215,7 @@ def show_finished_product():
     
     # Selector de página
     
-    with col2:
+    with col3:
         current_page = st.selectbox(
             f"Página (1-{total_pages})", 
             range(1, total_pages + 1), 

@@ -15,6 +15,8 @@ from reportlab.graphics.shapes import Drawing, Rect
 from reportlab.graphics import renderPDF
 import pandas as pd
 import base64
+from PIL import Image as PILImage
+import os
 
 
 class QualityControlReportGenerator:
@@ -31,7 +33,7 @@ class QualityControlReportGenerator:
             'CustomHeader',
             parent=self.styles['Heading1'],
             fontSize=16,
-            spaceAfter=20,
+            spaceAfter=5,
             textColor=colors.HexColor('#1e3a8a'),
             alignment=1  # Center
         )
@@ -81,9 +83,49 @@ class QualityControlReportGenerator:
             pagesize=A4,
             rightMargin=20*mm,
             leftMargin=20*mm,
-            topMargin=20*mm,
+            topMargin=5*mm,  # Slightly increased top margin for logo on first page
             bottomMargin=20*mm
         )
+        
+        # Add header function for first page only
+        def header_first_page(canvas, doc):
+            canvas.saveState()
+            
+            # Add logo in top right corner of first page only
+            try:
+                logo_paths = [
+                    "assets/sanlucar_logo.png",
+                    "./assets/sanlucar_logo.png",
+                    "../assets/sanlucar_logo.png",
+                    "sanlucar_logo.png"
+                ]
+                
+                logo_path = None
+                for path in logo_paths:
+                    try:
+                        # Just check if file exists
+                        with open(path, 'rb') as f:
+                            logo_path = path
+                            break
+                    except:
+                        continue
+                
+                if logo_path:
+                    # Process logo to ensure transparency
+                    processed_logo_path = self._process_logo_transparency(logo_path)
+                    
+                    # Get page dimensions
+                    page_width, page_height = A4
+                    # Position logo in top right corner, but not overlapping the title
+                    logo_x = page_width - 1.4*inch - 0*mm  # Right margin, moved left a bit
+                    logo_y = page_height - 0.75 *inch - 0*mm  # Top margin, moved down a bit
+                    
+                    # Draw logo with transparency
+                    canvas.drawImage(processed_logo_path, logo_x, logo_y, width=1.5*inch, height=0.8*inch, preserveAspectRatio=True, mask='auto')
+            except Exception as e:
+                print(f"Warning: Could not add logo to header: {e}")
+            
+            canvas.restoreState()
         
         # Build the story (content)
         story = []
@@ -108,8 +150,8 @@ class QualityControlReportGenerator:
         # Por ahora, mostrar placeholder
         story.extend(self._create_photos_section(images_list))
         
-        # Build PDF
-        doc.build(story)
+        # Build PDF with header on first page only
+        doc.build(story, onFirstPage=header_first_page)
         
         if output_path:
             with open(output_path, 'wb') as f:
@@ -122,18 +164,18 @@ class QualityControlReportGenerator:
         """Create the report header"""
         story = []
         
-        # Company logo placeholder and title
+        # Simple centered title since logo is now in page header
         header_table_data = [
-            ['', 'INFORME DE CONTROL DE CALIDAD', ''],
+            ['INFORME DE CONTROL DE CALIDAD'],
         ]
         
-        header_table = Table(header_table_data, colWidths=[2*inch, 4*inch, 2*inch])
+        header_table = Table(header_table_data, colWidths=[8*inch])
         header_table.setStyle(TableStyle([
             ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-            ('FONTNAME', (1, 0), (1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (1, 0), (1, 0), 16),
-            ('TEXTCOLOR', (1, 0), (1, 0), colors.HexColor('#1e3a8a')),
+            ('FONTNAME', (0, 0), (0, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (0, 0), 18),
+            ('TEXTCOLOR', (0, 0), (0, 0), colors.HexColor('#1e3a8a')),
         ]))
         
         story.append(header_table)
@@ -428,6 +470,52 @@ class QualityControlReportGenerator:
             story.append(Paragraph("No hay imágenes disponibles para este FCL", self.small_style))
         
         return story
+
+    def _process_logo_transparency(self, logo_path):
+        """
+        Process logo to ensure it has transparent background
+        
+        Args:
+            logo_path: Path to the original logo file
+            
+        Returns:
+            Path to processed logo with transparency
+        """
+        try:
+            # Open the image with PIL
+            with PILImage.open(logo_path) as img:
+                # Convert to RGBA if not already
+                if img.mode != 'RGBA':
+                    img = img.convert('RGBA')
+                
+                # Get the image data
+                data = img.getdata()
+                
+                # Create new image data with transparent background
+                new_data = []
+                for item in data:
+                    # If pixel is black (or very dark), make it transparent
+                    # Also check for dark gray backgrounds
+                    if (item[0] < 50 and item[1] < 50 and item[2] < 50) or \
+                       (abs(item[0] - item[1]) < 10 and abs(item[1] - item[2]) < 10 and item[0] < 100):
+                        new_data.append((255, 255, 255, 0))  # Transparent
+                    else:
+                        new_data.append(item)
+                
+                # Create new image with transparent background
+                new_img = PILImage.new('RGBA', img.size, (255, 255, 255, 0))
+                new_img.putdata(new_data)
+                
+                # Save to temporary file
+                temp_path = logo_path.replace('.png', '_transparent.png')
+                new_img.save(temp_path, 'PNG')
+                
+                print(f"Logo processed for transparency: {temp_path}")
+                return temp_path
+                
+        except Exception as e:
+            print(f"Warning: Could not process logo transparency: {e}")
+            return logo_path  # Return original if processing fails
 
     def create_download_link(self, pdf_buffer, filename="quality_control_report.pdf"):
         """Create a download link for the PDF"""
