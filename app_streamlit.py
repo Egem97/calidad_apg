@@ -16,7 +16,7 @@ from views.quality_control import show_quality_control
 from views.reports import show_reports
 from views.settings import show_settings
 from views.finished_product import show_finished_product
-from views.qr_scanner import show_qr_scanner_view
+
 from views.despacho import show_despacho
 from utils.config import load_config
 
@@ -171,8 +171,7 @@ def main():
             show_finished_product()
     elif selected == "🚚 Despacho":
             show_despacho()
-    #elif selected == "📱 Escáner QR":
-    #    show_qr_scanner_view()
+
     #elif selected == "📊 Control de Calidad":
     #    show_quality_control()
     #elif selected == "📈 Reportes":
