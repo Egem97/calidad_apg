@@ -496,7 +496,7 @@ def generate_and_download_pdf(fcl_number, fcl_data, detailed_records, img_df):
         # Obtener las filas seleccionadas del grid
         if 'selected_rows' in grid_response:
             selected_rows = grid_response['selected_rows']
-            print("DEBUG - Filas seleccionadas encontradas:", len(selected_rows))
+            
         else:
             print("DEBUG - No hay filas seleccionadas en grid_response")
     
@@ -507,8 +507,7 @@ def generate_and_download_pdf(fcl_number, fcl_data, detailed_records, img_df):
     if selected_rows is None or len(selected_rows) == 0:
         # No hay filas seleccionadas, usar todas las filas
         records_to_include = detailed_records
-        st.info("📋 Generando reporte con todas las filas disponibles")
-        st.info("💡 Para seleccionar filas específicas, haz clic en las filas del grid de arriba")
+       
     else:
         # Hay filas seleccionadas, filtrar solo esas
         try:
@@ -523,8 +522,7 @@ def generate_and_download_pdf(fcl_number, fcl_data, detailed_records, img_df):
                     if all(0 <= idx < len(detailed_records) for idx in selected_indices):
                         # Filtrar los registros por los índices seleccionados
                         records_to_include = detailed_records.iloc[selected_indices].copy()
-                        st.success(f"📋 Generando reporte con {len(selected_rows)} filas seleccionadas")
-                        print(f"DEBUG - Filas seleccionadas exitosamente: {len(records_to_include)}")
+                        
                     else:
                         st.warning("⚠️ Índices de selección fuera de rango, usando todas las filas")
                         records_to_include = detailed_records
