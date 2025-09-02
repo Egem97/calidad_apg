@@ -577,13 +577,9 @@ class QualityControlReportGenerator:
         """Create photos section with actual images"""
         story = []
 
-        # Debug: verificar el formato de las imágenes
-        print(f"DEBUG _create_photos_section: images_list type: {type(images_list)}")
-        print(f"DEBUG _create_photos_section: images_list length: {len(images_list) if images_list else 0}")
+       
         if images_list and len(images_list) > 0:
-            print(f"DEBUG _create_photos_section: First image type: {type(images_list[0])}")
-            print(f"DEBUG _create_photos_section: First image length: {len(images_list[0]) if isinstance(images_list[0], str) else 'N/A'}")
-            print(f"DEBUG _create_photos_section: First image starts with: {images_list[0][:50] if isinstance(images_list[0], str) else 'N/A'}")
+           pass
         
         images_list = images_list or []
         
@@ -606,10 +602,10 @@ class QualityControlReportGenerator:
                             try:
                                 # Verificar que la imagen sea un string base64 válido
                                 img_base64 = images_list[i + j]
-                                print(f"DEBUG: procesando imagen {i+j+1}, tipo: {type(img_base64)}")
+                                
                                 
                                 if not isinstance(img_base64, str):
-                                    print(f"ERROR: imagen {i+j+1} no es string, es {type(img_base64)}")
+                                    
                                     placeholder = Paragraph(f"Error: formato inválido", self.small_style)
                                     row_images.append(placeholder)
                                     continue
@@ -624,7 +620,7 @@ class QualityControlReportGenerator:
                                     img_data = base64.b64decode(img_base64)
                                     img_buffer = io.BytesIO(img_data)
                                 except Exception as decode_error:
-                                    print(f"ERROR decodificando imagen {i+j+1}: {str(decode_error)}")
+                                   
                                     placeholder = Paragraph(f"Error: base64 inválido", self.small_style)
                                     row_images.append(placeholder)
                                     continue
@@ -632,10 +628,10 @@ class QualityControlReportGenerator:
                                 # Crear imagen para PDF con tamaño optimizado
                                 img = Image(img_buffer, width=img_width, height=img_height, kind='proportional')
                                 row_images.append(img)
-                                print(f"SUCCESS: imagen {i+j+1} procesada correctamente")
+                                
                             except Exception as e:
                                 # Si hay error, crear placeholder
-                                print(f"ERROR procesando imagen {i+j+1}: {str(e)}")
+                                
                                 placeholder = Paragraph(f"Error imagen {i+j+1}: {str(e)[:30]}", self.small_style)
                                 row_images.append(placeholder)
                         else:
@@ -660,7 +656,7 @@ class QualityControlReportGenerator:
                 story.append(Paragraph(f"Total de imágenes incluidas: {len(images_list)}", self.small_style))
                 
             except Exception as e:
-                print(f"ERROR general en _create_photos_section: {str(e)}")
+                
                 story.append(Paragraph(f"Error al procesar imágenes: {str(e)}", self.small_style))
         else:
             story.append(Paragraph("No hay imágenes disponibles para este FCL", self.small_style))
@@ -706,7 +702,7 @@ class QualityControlReportGenerator:
                 temp_path = logo_path.replace('.png', '_transparent.png')
                 new_img.save(temp_path, 'PNG')
                 
-                print(f"Logo processed for transparency: {temp_path}")
+                
                 return temp_path
                 
         except Exception as e:

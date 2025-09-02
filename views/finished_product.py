@@ -451,8 +451,7 @@ def show_fcl_detail_view():
                 for i, img_url in enumerate(img_df):
                     
                     
-                    #print(i)
-                    #print(img_base64)
+            
                     with col_img[i % 3]:
                         st.image(img_url,width=200)
         
@@ -559,11 +558,7 @@ def generate_and_download_pdf(fcl_number, fcl_data, detailed_records, img_df):
         'FECHA DE MP': fcl_data['FECHA DE MP'].strftime('%Y/%m/%d'),
         'FECHA DE PROCESO': fcl_data['FECHA DE PROCESO'].strftime('%Y/%m/%d'),
     }
-    
-    # Debug final para verificar qué se está enviando al PDF
-    print(f"DEBUG - Total de registros originales: {len(detailed_records)}")
-    print(f"DEBUG - Registros a incluir en PDF: {len(records_to_include)}")
-    print(f"DEBUG - Primeros registros a incluir:")
+
     if not records_to_include.empty:
         print(records_to_include.head(2))
     
