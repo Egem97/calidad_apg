@@ -286,4 +286,3 @@ def show_database_settings():
             st.success("Configuración de base de datos guardada!")
 
 # Importar pandas para los datos de ejemplo
-import pandas as pd

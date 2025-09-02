@@ -45,3 +45,20 @@ def get_download_url_by_name(json_data, name):
     for item in json_data:
         if item.get('name') == name:
             return item.get('@microsoft.graph.downloadUrl')
+
+def test_json(access_token: str):
+
+    
+    url = f"https://graph.microsoft.com/v1.0/me/drive/sharedWithMe"
+    headers = {
+        "Authorization": f"Bearer {access_token}"
+    }
+
+    response = requests.get(url, headers=headers)
+
+    if response.status_code == 200:
+        return response.json()
+    else:
+        print("❌ Error al obtener archivos:", response.status_code)
+        print(response.json())
+        return []

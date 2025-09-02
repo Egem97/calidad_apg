@@ -90,6 +90,8 @@ class QualityControlReportGenerator:
         # Add header function for first page only
         def header_first_page(canvas, doc):
             canvas.saveState()
+            canvas.setTitle("Informe de Control de Calidad")
+
             
             # Add logo in top right corner of first page only
             try:
@@ -160,6 +162,199 @@ class QualityControlReportGenerator:
         buffer.seek(0)
         return buffer
 
+    def generate_fcl_report_with_sheets(self, fcl_data, detailed_records, output_path=None, images_list=None):
+        """
+        Generate a complete FCL Quality Control Report with one sheet per row
+        
+        Args:
+            fcl_data: Dictionary with FCL summary information
+            detailed_records: DataFrame with detailed quality records
+            output_path: Optional file path to save PDF
+            images_list: List of base64 encoded images
+            
+        Returns:
+            BytesIO buffer with PDF content
+        """
+        buffer = io.BytesIO()
+        doc = SimpleDocTemplate(
+            buffer,
+            pagesize=A4,
+            rightMargin=20*mm,
+            leftMargin=20*mm,
+            topMargin=5*mm,
+            bottomMargin=20*mm
+        )
+        
+        # Add header function for first page only
+        def header_first_page(canvas, doc):
+            canvas.saveState()
+            canvas.setTitle("Informe de Control de Calidad")
+
+            # Add logo in top right corner of first page only
+            try:
+                logo_paths = [
+                    "assets/sanlucar_logo.png",
+                    "./assets/sanlucar_logo.png",
+                    "../assets/sanlucar_logo.png",
+                    "sanlucar_logo.png"
+                ]
+                
+                logo_path = None
+                for path in logo_paths:
+                    try:
+                        with open(path, 'rb') as f:
+                            logo_path = path
+                            break
+                    except:
+                        continue
+                
+                if logo_path:
+                    processed_logo_path = self._process_logo_transparency(logo_path)
+                    page_width, page_height = A4
+                    logo_x = page_width - 1.4*inch - 0*mm
+                    logo_y = page_height - 0.75 *inch - 0*mm
+                    canvas.drawImage(processed_logo_path, logo_x, logo_y, width=1.5*inch, height=0.8*inch, preserveAspectRatio=True, mask='auto')
+            except Exception as e:
+                print(f"Warning: Could not add logo to header: {e}")
+            
+            canvas.restoreState()
+        
+        # Build the story (content)
+        story = []
+        
+        # Add header
+        
+        
+        # Add FCL information section
+        #story.extend(self._create_fcl_info_section(fcl_data))
+        
+        # Add one sheet per row
+        for index, row in detailed_records.iterrows():
+            story.extend(self._create_header())
+            story.extend(self._create_row_sheet(row, index + 1))
+            # Add page break between rows (except for the last one)
+            if index < len(detailed_records) - 1:
+                story.append(Spacer(1, 20))
+                story.append(Paragraph("<pagebreak/>", self.styles['Normal']))
+        
+        # Add photos section at the very end
+        story.extend(self._create_photos_section(images_list))
+        
+        # Build PDF with header on first page only
+        doc.build(story, onFirstPage=header_first_page)
+        
+        if output_path:
+            with open(output_path, 'wb') as f:
+                f.write(buffer.getvalue())
+        
+        buffer.seek(0)
+        return buffer
+
+    def _create_row_sheet(self, row_data, row_number):
+        """Create a detailed sheet for a specific row"""
+        story = []
+        
+        # Row header
+        story.append(Paragraph(f"📋FCL: {row_data.get('N° FCL', 'N/A')} - Muestra #{row_number}", self.subheader_style))
+        story.append(Spacer(1, 10))
+        
+        # Basic information for this row
+        basic_info_data = [
+            ['FCL:', str(row_data.get('N° FCL', 'N/A')), 'Presentación:', row_data.get('PRESENTACION', '')],
+            ['Fecha Proceso:', row_data.get('FECHA DE PROCESO', '').strftime('%d/%m/%Y %H:%M') if pd.notna(row_data.get('FECHA DE PROCESO')) else 'N/A', 'Semana:', str(row_data.get('SEMANA', 'N/A'))],
+            ['Productor:', str(row_data.get('PRODUCTOR', 'N/A')), 'Tipo:', str(row_data.get('TIPO DE PRODUCTO', 'N/A'))],
+            ['Fundo:', str(row_data.get('FUNDO', 'N/A')), 'Destino:', str(row_data.get('DESTINO', 'N/A'))],
+            ['Variedad:', str(row_data.get('VARIEDAD', 'N/A')),'Línea:', str(row_data.get('LINEA', 'N/A')) ],
+           # ['Módulo:', str(row_data.get('MODULO', 'N/A')), 'TUF:', str(row_data.get('TUF', 'N/A'))],
+        ]
+        
+        basic_info_table = Table(basic_info_data, colWidths=[1*inch, 2*inch, 1*inch, 2*inch])
+        basic_info_table.setStyle(TableStyle([
+            ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
+            ('FONTSIZE', (0, 0), (-1, -1), 9),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ('LEFTPADDING', (0, 0), (-1, -1), 3),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 3),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+        ]))
+        
+        story.append(basic_info_table)
+        story.append(Spacer(1, 15))
+        
+        # Quality evaluation data for this specific row
+        story.append(Paragraph("", self.subheader_style))
+        story.append(Spacer(1, 10))
+        
+        # Quality defects for this row
+        quality_defects_data = [
+            ['Condición', 'Porcentaje', 'Condición', 'Porcentaje'],
+            ['Frutos con Pedicelo', f"{row_data.get('FRUTOS CON PEDICELO', 0):.1f}%", 'Herida Abierta', f"{row_data.get('HERIDA ABIERTA', 0):.1f}%"],
+            ['Fumagina', f"{row_data.get('FUMAGINA', 0):.1f}%", 'Queresa', f"{row_data.get('QUERESA', 0):.1f}%"],
+            ['F.Bloom', f"{row_data.get('F.BLOOM', 0):.1f}%", 'Deshidratación Leve', f"{row_data.get('DESHIDRATACIÓN  LEVE', 0):.1f}%"],
+            ['Herida Cicatrizada', f"{row_data.get('HERIDA CICATRIZADA', 0):.1f}%", 'Deshidratación Moderada', f"{row_data.get('DESHIDRATACION MODERADO', 0):.1f}%"],
+            ['Excreta de Abeja', f"{row_data.get('EXCRETA DE ABEJA', 0):.1f}%", 'Deshidratación Severa', f"{row_data.get('DESHIDRATADO SEVERO', 0):.1f}%"],
+            ['Russet', f"{row_data.get('RUSSET', 0):.1f}%", 'Machucón', f"{row_data.get('MACHUCON', 0):.1f}%"],
+            ['Polvo', f"{row_data.get('POLVO', 0):.1f}%", 'Desgarro', f"{row_data.get('DESGARRO', 0):.1f}%"],
+            ['Frutos Rojizos', f"{row_data.get('FRUTOS ROJIZOS', 0):.1f}%", 'Sobremaduro', f"{row_data.get('SOBREMADURO', 0):.1f}%"],
+            ['Restos Florales', f"{row_data.get('RESTOS FLORALES', 0):.1f}%", 'Blanda Severa', f"{row_data.get('BLANDA SEVERA', 0):.1f}%"],
+            ['Halo Verde', f"{row_data.get('HALO VERDE', 0):.1f}%", 'Blanda Moderada', f"{row_data.get('BLANDA MODERADO', 0):.1f}%"],
+            ['Picado', f"{row_data.get('PICADO', 0):.1f}%", 'Excreta de Ave', f"{row_data.get('EXCRETA DE AVE', 0):.1f}%"],
+            ['Bajo Calibre', f"{row_data.get('BAJO CALIBRE', 0):.1f}%", 'Hongos', f"{row_data.get('HONGOS', 0):.1f}%"],
+            ['Chanchito Blanco', f"{row_data.get('CHANCHITO BLANCO', 0):.1f}%", 'Pudricion', f"{row_data.get('PUDRICION', 0):.1f}%"],
+            ['F. Mojado', f"{row_data.get('F. MOJADA', 0):.1f}%", 'Baya Reventada', f"{row_data.get('BAYA REVENTADA', 0):.1f}%"],
+            ['Daño de Trips', f"{row_data.get('DAÑO DE TRIPS', 0):.1f}%", 'Baya Colapsada', f"{row_data.get('BAYA COLAPSADA', 0):.1f}%"],
+            ['Otros', f"{row_data.get('OTROS', 0):.1f}%", 'Presencia de Larva', f"{row_data.get('PRESENCIA DE LARVA', 0):.1f}%"],
+            ['', '', 'Exudation', f"{row_data.get('EXUDACION', 0):.1f}%"],
+            ['', '', 'Otros 2', f"{row_data.get('OTROS2', 0):.1f}%"],
+        ]
+        
+        quality_table = Table(quality_defects_data, colWidths=[2*inch, 1*inch, 2*inch, 1*inch])
+        quality_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#dbeafe')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.HexColor('#1e3a8a')),
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('ALIGN', (1, 0), (1, -1), 'CENTER'),
+            ('ALIGN', (3, 0), (3, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+            ('FONTSIZE', (0, 0), (-1, -1), 8),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+            ('LEFTPADDING', (0, 0), (-1, -1), 3),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 3),
+            ('TOPPADDING', (0, 0), (-1, -1), 3),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
+        ]))
+        
+        story.append(quality_table)
+        story.append(Spacer(1, 15))
+        
+        # Additional metrics for this row
+        #story.append(Paragraph("📈 Métricas Adicionales", self.subheader_style))
+        story.append(Spacer(1, 10))
+        
+        metrics_data = [
+            ['Peso de Muestra:', f"{row_data.get('PESO DE MUESTRA (g)', 0):.1f} g", 'Calibre:', str(row_data.get('CALIBRE', 'N/A'))],
+            ['BRIX:', f"{row_data.get('BRIX', 0):.2f}", 'Acidez:', f"{row_data.get('ACIDEZ', 0):.2f}"],
+            ['Total Defectos Calidad:', f"{row_data.get('TOTAL DE DEFECTOS DE CALIDAD', 0):.1f}%", 'Total Condición:', f"{row_data.get('TOTAL DE CONDICION', 0):.1f}%"],
+            ['Total Exportable:', str(row_data.get('TOTAL DE EXPORTABLE', 0)), 'Total No Exportable:', str(row_data.get('TOTAL DE NO EXPORTABLE', 0))],
+        ]
+        
+        metrics_table = Table(metrics_data,colWidths=[2.5*inch, 1.5*inch, 2.5*inch, 1.5*inch] )#
+        metrics_table.setStyle(TableStyle([
+            ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
+            ('FONTSIZE', (0, 0), (-1, -1), 9),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ('LEFTPADDING', (0, 0), (-1, -1), 3),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 3),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+        ]))
+        
+        #story.append(metrics_table)
+        story.append(Spacer(1, 130))
+        
+        return story
+
     def _create_header(self):
         """Create the report header"""
         story = []
@@ -189,11 +384,12 @@ class QualityControlReportGenerator:
         
         # FCL basic information
         info_data = [
-            ['FCL:', f"{fcl_data.get('N° FCL', 'N/A')}"],#, 'Empresa:', f"{fcl_data.get('EMPRESA', 'N/A')}"
+            ['FCL:', f"{fcl_data.get('N° FCL', 'N/A')}", 'Fecha Proceso:', f"{fcl_data.get('FECHA DE PROCESO', 'N/A')}"],
+       
             ['Productor:',  f"{fcl_data.get('PRODUCTOR', 'N/A')}", 'Variedad:', f"{fcl_data.get('VARIEDAD', 'N/A')}"],
             ['Presentación:',  f"{fcl_data.get('PRESENTACION', 'N/A')}", 'Destino:', f"{fcl_data.get('DESTINO', 'N/A')}"],
             ['Brix:',  f"{fcl_data.get('BRIX', 'N/A')}", 'Acidez:', f"{fcl_data.get('ACIDEZ', 'N/A')}"],
-        ]
+        ]   
         
         info_table = Table(info_data, colWidths=[1*inch, 2.8*inch, 1*inch, 2.8*inch], hAlign='LEFT')#colWidths=[0.5*inch, 2.5*inch, 0.5*inch, 2.5*inch]
         info_table.setStyle(TableStyle([
@@ -525,9 +721,9 @@ class QualityControlReportGenerator:
         return href
 
 
-def generate_fcl_pdf_report(fcl_data, detailed_records, images_list):
+def generate_fcl_pdf_report(fcl_data, detailed_records, images_list=None):
     """
-    Convenience function to generate FCL PDF report
+    Convenience function to generate FCL PDF report with one sheet per row
     
     Args:
         fcl_data: Dictionary with FCL summary information
@@ -538,4 +734,4 @@ def generate_fcl_pdf_report(fcl_data, detailed_records, images_list):
         BytesIO buffer with PDF content
     """
     generator = QualityControlReportGenerator()
-    return generator.generate_fcl_report(fcl_data, detailed_records, images_list=images_list)
+    return generator.generate_fcl_report_with_sheets(fcl_data, detailed_records, images_list=images_list)

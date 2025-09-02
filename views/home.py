@@ -22,7 +22,7 @@ def show_home():
         st.markdown('<h4>ℹ️ Información del Sistema</h4>', unsafe_allow_html=True)
         st.info("""
         - **Versión:** 1.0.0
-        - **Última actualización:** 2025-08-22
+        - **Última actualización:** 2025-09-01
         - **Estado:** Operativo
        
         """)

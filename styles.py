@@ -12,7 +12,7 @@ def load_css():
      .main-header {
          font-size: 2.5rem;
          font-weight: bold;
-         color: #1e3a8a;
+         color: #1f2937;
          text-align: center;
          margin-bottom: 0.5rem;
      }
@@ -20,7 +20,7 @@ def load_css():
      .sub-header {
          font-size: 1.5rem;
          font-weight: 600;
-         color: #1e3a8a;
+         color: #1f2937;
          margin-bottom: 1rem;
      }
     
@@ -34,7 +34,7 @@ def load_css():
     }
     
          .metric-card {
-         background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+         background: linear-gradient(135deg, #1f2937 0%, #1f2937 100%);
          color: white;
          border-radius: 10px;
          padding: 1.5rem;
@@ -61,12 +61,12 @@ def load_css():
          .dataframe th {
          background-color: #dbeafe;
          font-weight: 600;
-         color: #1e3a8a;
+         color: #1f2937;
      }
     
          /* Estilos para botones */
      .stButton > button {
-         background-color: #1e3a8a;
+         background-color: #1f2937;
          color: white;
          border: none;
          border-radius: 5px;
@@ -75,7 +75,7 @@ def load_css():
      }
      
      .stButton > button:hover {
-         background-color: #1e40af;
+         background-color: #1f2937;
      }
     
          /* Estilos para sidebar */
@@ -165,7 +165,7 @@ def load_css():
     .evaluation-card:hover {
         transform: translateY(-4px);
         box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-        border-color: #1e3a8a;
+        border-color: #1f2937;
     }
     
          .evaluation-card::before {
@@ -175,7 +175,7 @@ def load_css():
          left: 0;
          right: 0;
          height: 4px;
-         background: linear-gradient(90deg, #1e3a8a, #1e40af);
+         background: linear-gradient(90deg, #1f2937, #1f2937);
      }
     
     .card-header {
@@ -208,7 +208,7 @@ def load_css():
          background: #f8f9fa;
          padding: 16px;
          border-radius: 12px;
-         border-left: 4px solid #1e3a8a;
+         border-left: 4px solid #1f2937;
      }
     
     .info-grid-2 {
@@ -243,17 +243,17 @@ def load_css():
     
          .metric-value {
          font-weight: bold;
-         color: #1e3a8a;
+         color: #1f2937;
          font-size: 14px;
      }
-    
+
     .card-actions {
         display: flex;
         justify-content: flex-end;
     }
     
          .detail-btn {
-         background: linear-gradient(135deg, #1e3a8a, #1e40af);
+         background: linear-gradient(135deg, #1f2937, #1f2937);
          color: white;
          border: none;
          padding: 10px 20px;
@@ -268,7 +268,7 @@ def load_css():
      .detail-btn:hover {
          transform: translateY(-2px);
          box-shadow: 0 4px 16px rgba(30, 58, 138, 0.4);
-         background: linear-gradient(135deg, #1e40af, #1e3a8a);
+         background: linear-gradient(135deg, #1f2937, #1f2937);
      }
     
     .status-badge {
@@ -325,7 +325,7 @@ def load_css():
          background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
          border-radius: 8px;
          padding: 15px;
-         border-left: 4px solid #1e3a8a;
+         border-left: 4px solid #1f2937;
      }
     
     .product-info {
@@ -354,7 +354,7 @@ def load_css():
     
     .single-card:hover {
         box-shadow: 0 4px 16px rgba(0,0,0,0.12);
-        border-color: #1e3a8a;
+        border-color: #1f2937;
         transform: translateY(-2px);
     }
     
@@ -433,7 +433,7 @@ def load_css():
     }
     
          .detail-button {
-         background: linear-gradient(135deg, #1e3a8a, #1e40af);
+         background: linear-gradient(135deg, #1f2937, #1f2937);
          color: white;
          border: none;
          padding: 8px 16px;
@@ -447,7 +447,7 @@ def load_css():
      .detail-button:hover {
          transform: translateY(-1px);
          box-shadow: 0 2px 8px rgba(30, 58, 138, 0.3);
-         background: linear-gradient(135deg, #1e40af, #1e3a8a);
+         background: linear-gradient(135deg, #1f2937, #1f2937);
      }
     
         
@@ -469,7 +469,7 @@ def load_css():
      
      .clickable-card:hover {
          box-shadow: 0 6px 16px rgba(0,0,0,0.15);
-         border-color: #1e3a8a;
+         border-color: #1f2937;
          transform: translateY(-2px);
          background: var(--hover-background, linear-gradient(135deg, #f8fff8 0%, #ffffff 100%));
      }
@@ -508,7 +508,7 @@ def load_css():
          
          .clickable-card:hover {
              background: linear-gradient(135deg, #2a2a2a 0%, #262730 100%);
-             border-color: #1e3a8a;
+             border-color: #1f2937;
          }
          
          .clickable-card h3 {
@@ -537,7 +537,7 @@ def load_css():
      
      .stApp[data-testid="stAppViewContainer"] .clickable-card:hover {
          background: linear-gradient(135deg, #2a2a2a 0%, #262730 100%) !important;
-         border-color: #1e3a8a !important;
+         border-color: #1f2937 !important;
      }
      
      .stApp[data-testid="stAppViewContainer"] .clickable-card h3 {
@@ -557,7 +557,7 @@ def load_css():
      
      .stApp[data-testid="stAppViewContainer"]:not([data-testid="stDecoration"]) .clickable-card:hover {
          background: linear-gradient(135deg, #f8fff8 0%, #ffffff 100%) !important;
-         border-color: #1e3a8a !important;
+         border-color: #1f2937 !important;
      }
      
      .stApp[data-testid="stAppViewContainer"]:not([data-testid="stDecoration"]) .clickable-card h3 {
@@ -590,7 +590,7 @@ def load_css():
     
          .simple-card:hover {
          box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-         border-color: #1e3a8a;
+         border-color: #1f2937;
      }
     
     .card-left-section {
@@ -632,7 +632,7 @@ def load_css():
     }
     
          .modal-btn {
-         background: linear-gradient(135deg, #1e3a8a, #1e40af);
+         background: linear-gradient(135deg, #1f2937, #1f2937);
          color: white;
          border: none;
          padding: 6px 12px;
@@ -674,7 +674,7 @@ def load_css():
     }
     
          .modal-header {
-         background: linear-gradient(135deg, #1e3a8a, #1e40af);
+         background: linear-gradient(135deg, #1f2937, #1f2937);
          color: white;
          padding: 20px;
          border-radius: 12px 12px 0 0;
@@ -723,7 +723,7 @@ def load_css():
          background: #f8f9fa;
          padding: 15px;
          border-radius: 8px;
-         border-left: 4px solid #1e3a8a;
+         border-left: 4px solid #1f2937;
      }
     
     .modal-section h4 {
@@ -811,7 +811,7 @@ def load_css():
      
      .streamlit-dark .clickable-card:hover {
          background: linear-gradient(135deg, #2a2a2a 0%, #262730 100%) !important;
-         border-color: #1e3a8a !important;
+         border-color: #1f2937 !important;
      }
      
      .streamlit-dark .clickable-card h3 {
@@ -830,7 +830,7 @@ def load_css():
      
      .streamlit-light .clickable-card:hover {
          background: linear-gradient(135deg, #f8fff8 0%, #ffffff 100%) !important;
-         border-color: #1e3a8a !important;
+         border-color: #1f2937 !important;
      }
      
      .streamlit-light .clickable-card h3 {
