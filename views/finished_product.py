@@ -39,7 +39,7 @@ def categorize_presentation(presentation):
         else:
             return presentation_upper
 
-@st.cache_data(show_spinner="Cargando datos...", ttl=3600)
+@st.cache_data(show_spinner="Cargando datos...", ttl=300)
 def get_data():
     """Cargar datos principales con cache optimizado"""
     access_token = get_access_token()
@@ -49,7 +49,7 @@ def get_data():
     return df
 
 
-@st.cache_data(show_spinner="Cargando images...",ttl=3600)
+@st.cache_data(show_spinner="Cargando images...",ttl=500)
 def get_images():
     """Cargar solo metadatos de imágenes para optimizar rendimiento"""
     access_token = get_access_token_alza()
