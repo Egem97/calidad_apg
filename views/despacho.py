@@ -13,6 +13,12 @@ import zipfile
 import io
 import json
 import re
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import letter, A4
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.units import inch, mm
+from reportlab.pdfgen import canvas
 
 def clean_cod_column(cod):
     """
@@ -164,7 +170,7 @@ def show_despacho():
     
     # Cargar y limpiar datos
     dff = get_programacion_despachos()
-    print("Columnas disponibles:", dff.columns.tolist())
+    
     
     # Convertir fechas
     if 'FECHA DE DESPACHO' in dff.columns:
@@ -323,6 +329,478 @@ def show_despacho():
             """, unsafe_allow_html=True)
 
 
+def format_value(value):
+    """Formatear valores para mostrar de manera legible"""
+    if pd.isna(value) or value == "-" or value == "" or str(value).strip() == "":
+        return "N/A"
+    
+    # Si es una fecha, formatearla
+    if isinstance(value, (pd.Timestamp, datetime)):
+        return value.strftime('%d/%m/%Y') if pd.notna(value) else "N/A"
+    
+    return str(value).strip()
+
+def generate_corporate_print_format(fcl_data, fcl_number):
+    """Generar formato corporativo para impresión"""
+    
+    # CSS para el formato corporativo
+    corporate_css = """
+    <style>
+    @media print {
+        .no-print { display: none !important; }
+        .print-only { display: block !important; }
+        body { margin: 0; padding: 20px; }
+    }
+    .corporate-header {
+        text-align: center;
+        border-bottom: 3px solid #2E86AB;
+        padding-bottom: 20px;
+        margin-bottom: 30px;
+    }
+    .company-logo {
+        font-size: 28px;
+        font-weight: bold;
+        color: #2E86AB;
+        margin-bottom: 10px;
+    }
+    .document-title {
+        font-size: 24px;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 5px;
+    }
+    .document-subtitle {
+        font-size: 16px;
+        color: #666;
+    }
+    .info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+        margin-bottom: 30px;
+    }
+    .info-section {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        border-left: 4px solid #2E86AB;
+    }
+    .section-title {
+        font-size: 18px;
+        font-weight: bold;
+        color: #2E86AB;
+        margin-bottom: 15px;
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 5px;
+    }
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        padding: 5px 0;
+    }
+    .info-label {
+        font-weight: bold;
+        color: #333;
+        min-width: 150px;
+    }
+    .info-value {
+        color: #666;
+        text-align: right;
+        flex: 1;
+    }
+    .full-width-section {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        border-left: 4px solid #2E86AB;
+        margin-bottom: 20px;
+    }
+    .footer {
+        margin-top: 40px;
+        text-align: center;
+        color: #666;
+        font-size: 12px;
+        border-top: 1px solid #ddd;
+        padding-top: 20px;
+    }
+    .print-button {
+        background: #2E86AB;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+        margin: 10px;
+    }
+    .print-button:hover {
+        background: #1a5a7a;
+    }
+    </style>
+    """
+    
+    # Generar el HTML del documento
+    current_date = datetime.now().strftime('%d/%m/%Y %H:%M')
+    
+    html_content = f"""
+    {corporate_css}
+    
+    <div class="corporate-header">
+        <div class="company-logo">🍓 SAN LUCAR FRUIT</div>
+        <div class="document-title">REPORTE DE DESPACHO</div>
+        <div class="document-subtitle">FCL: {fcl_number}</div>
+        <div class="document-subtitle">Generado el: {current_date}</div>
+    </div>
+    
+    <div class="info-grid">
+        <div class="info-section">
+            <div class="section-title">📋 Información General</div>
+            <div class="info-row">
+                <span class="info-label">N° FCL:</span>
+                <span class="info-value">{format_value(fcl_data.get('FCL', ''))}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Código Original:</span>
+                <span class="info-value">{format_value(fcl_data.get('CODIGO', ''))}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Cliente:</span>
+                <span class="info-value">{format_value(fcl_data.get('CLIENTE', ''))}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Empresa:</span>
+                <span class="info-value">{format_value(fcl_data.get('EMPRESA', ''))}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">CNEE:</span>
+                <span class="info-value">{format_value(fcl_data.get('CNEE', ''))}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Operador:</span>
+                <span class="info-value">{format_value(fcl_data.get('OPERADOR', ''))}</span>
+            </div>
+        </div>
+        
+        <div class="info-section">
+            <div class="section-title">📅 Información de Fechas</div>
+            <div class="info-row">
+                <span class="info-label">Fecha de Despacho:</span>
+                <span class="info-value">{format_value(fcl_data.get('FECHA DE DESPACHO', ''))}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Hora de Despacho:</span>
+                <span class="info-value">{format_value(fcl_data.get('HORA DESP.', ''))}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">ETD:</span>
+                <span class="info-value">{format_value(fcl_data.get('ETD', ''))}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">ETA:</span>
+                <span class="info-value">{format_value(fcl_data.get('ETA', ''))}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Semana ETD:</span>
+                <span class="info-value">{format_value(fcl_data.get('SEM ETD', ''))}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Semana Despacho:</span>
+                <span class="info-value">{format_value(fcl_data.get('SEM DESP.', ''))}</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="info-grid">
+        <div class="info-section">
+            <div class="section-title">🚚 Información de Transporte</div>
+            <div class="info-row">
+                <span class="info-label">Tipo de Envío:</span>
+                <span class="info-value">{format_value(fcl_data.get('ENVIO', ''))}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Transporte:</span>
+                <span class="info-value">{format_value(fcl_data.get('TRASNPORTE', ''))}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Nave:</span>
+                <span class="info-value">{format_value(fcl_data.get('NAVE', ''))}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Aerolínea:</span>
+                <span class="info-value">{format_value(fcl_data.get('AEROLINEA', ''))}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Línea Naviera:</span>
+                <span class="info-value">{format_value(fcl_data.get('LINEA NAVIERA', ''))}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Itinerario:</span>
+                <span class="info-value">{format_value(fcl_data.get('ITINERARIO', ''))}</span>
+            </div>
+        </div>
+        
+        <div class="info-section">
+            <div class="section-title">📍 Información de Destino</div>
+            <div class="info-row">
+                <span class="info-label">POD:</span>
+                <span class="info-value">{format_value(fcl_data.get('POD', ''))}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">POL:</span>
+                <span class="info-value">{format_value(fcl_data.get('POL', ''))}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Planta:</span>
+                <span class="info-value">{format_value(fcl_data.get('PLANTA', ''))}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">BK:</span>
+                <span class="info-value">{format_value(fcl_data.get('BK', ''))}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Estado:</span>
+                <span class="info-value">{format_value(fcl_data.get('ESTADO', ''))}</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="full-width-section">
+        <div class="section-title">📦 Información del Producto</div>
+        <div class="info-grid">
+            <div>
+                <div class="info-row">
+                    <span class="info-label">Presentación:</span>
+                    <span class="info-value">{format_value(fcl_data.get('PRESENTACION', ''))}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Pallets:</span>
+                    <span class="info-value">{format_value(fcl_data.get('PALLETS', ''))}</span>
+                </div>
+            </div>
+            <div>
+                <div class="info-row">
+                    <span class="info-label">Expediente Fito:</span>
+                    <span class="info-value">{format_value(fcl_data.get('EXPEDIENTE FITO.', ''))}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Semana PRO:</span>
+                    <span class="info-value">{format_value(fcl_data.get('SEM PRO', ''))}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p>Este documento fue generado automáticamente por el Sistema de Control de Calidad</p>
+        <p>© 2025 San Lucar Fruit - Todos los derechos reservados</p>
+    </div>
+    """
+    
+    return html_content
+
+def generate_despacho_pdf_report(fcl_data, fcl_number):
+    """
+    Generar reporte PDF corporativo para despacho
+    
+    Args:
+        fcl_data: Serie de pandas con datos del FCL
+        fcl_number: Número del FCL
+        
+    Returns:
+        BytesIO buffer con contenido PDF
+    """
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=A4,
+        rightMargin=20*mm,
+        leftMargin=20*mm,
+        topMargin=30*mm,
+        bottomMargin=20*mm
+    )
+    
+    # Setup styles
+    styles = getSampleStyleSheet()
+    
+    # Custom styles
+    header_style = ParagraphStyle(
+        'CustomHeader',
+        parent=styles['Heading1'],
+        fontSize=20,
+        spaceAfter=10,
+        textColor=colors.HexColor('#2E86AB'),
+        alignment=1  # Center
+    )
+    
+    subheader_style = ParagraphStyle(
+        'CustomSubHeader',
+        parent=styles['Heading2'],
+        fontSize=14,
+        spaceAfter=8,
+        textColor=colors.HexColor('#2E86AB'),
+        leftIndent=0
+    )
+    
+    body_style = ParagraphStyle(
+        'CustomBody',
+        parent=styles['Normal'],
+        fontSize=10,
+        spaceAfter=4,
+        textColor=colors.HexColor('#333333')
+    )
+    
+    # Story elements
+    story = []
+    
+    # Header with logo and title
+    
+    story.append(Paragraph("REPORTE DE DESPACHO", header_style))
+    story.append(Paragraph(f"FCL: {fcl_number}", subheader_style))
+    story.append(Paragraph(f"Generado el: {datetime.now().strftime('%d/%m/%Y %H:%M')}", body_style))
+    story.append(Spacer(1, 20))
+    
+    # Información General
+    story.append(Paragraph("INFORMACIÓN GENERAL", subheader_style))
+    
+    general_data = [
+        ['Campo', 'Valor'],
+        ['N° FCL', format_value(fcl_data.get('FCL', ''))],
+        ['Código Original', format_value(fcl_data.get('CODIGO', ''))],
+        ['Cliente', format_value(fcl_data.get('CLIENTE', ''))],
+        ['Empresa', format_value(fcl_data.get('EMPRESA', ''))],
+        ['CNEE', format_value(fcl_data.get('CNEE', ''))],
+        ['Operador', format_value(fcl_data.get('OPERADOR', ''))],
+        ['Estado', format_value(fcl_data.get('ESTADO', ''))]
+    ]
+    
+    general_table = Table(general_data, colWidths=[60*mm, 100*mm])
+    general_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#2E86AB')),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 10),
+        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+        ('FONTSIZE', (0, 1), (-1, -1), 9),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f8f9fa')])
+    ]))
+    
+    story.append(general_table)
+    story.append(Spacer(1, 15))
+    
+    # Información de Fechas
+    story.append(Paragraph("INFORMACIÓN DE FECHAS", subheader_style))
+    
+    date_data = [
+        ['Campo', 'Valor'],
+        ['Fecha de Despacho', format_value(fcl_data.get('FECHA DE DESPACHO', ''))],
+        ['Hora de Despacho', format_value(fcl_data.get('HORA DESP.', ''))],
+        ['ETD', format_value(fcl_data.get('ETD', ''))],
+        ['ETA', format_value(fcl_data.get('ETA', ''))],
+        ['Semana ETD', format_value(fcl_data.get('SEM ETD', ''))],
+        ['Semana Despacho', format_value(fcl_data.get('SEM DESP.', ''))],
+        ['Semana PRO', format_value(fcl_data.get('SEM PRO', ''))]
+    ]
+    
+    date_table = Table(date_data, colWidths=[60*mm, 100*mm])
+    date_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#2E86AB')),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 10),
+        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+        ('FONTSIZE', (0, 1), (-1, -1), 9),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f8f9fa')])
+    ]))
+    
+    story.append(date_table)
+    story.append(Spacer(1, 15))
+    
+    # Información de Transporte
+    story.append(Paragraph("INFORMACIÓN DE TRANSPORTE", subheader_style))
+    
+    transport_data = [
+        ['Campo', 'Valor'],
+        ['Tipo de Envío', format_value(fcl_data.get('ENVIO', ''))],
+        ['Transporte', format_value(fcl_data.get('TRASNPORTE', ''))],
+        ['Nave', format_value(fcl_data.get('NAVE', ''))],
+        ['Aerolínea', format_value(fcl_data.get('AEROLINEA', ''))],
+        ['Línea Naviera', format_value(fcl_data.get('LINEA NAVIERA', ''))],
+        ['Itinerario', format_value(fcl_data.get('ITINERARIO', ''))]
+    ]
+    
+    transport_table = Table(transport_data, colWidths=[60*mm, 100*mm])
+    transport_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#2E86AB')),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 10),
+        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+        ('FONTSIZE', (0, 1), (-1, -1), 9),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f8f9fa')])
+    ]))
+    
+    story.append(transport_table)
+    story.append(Spacer(1, 15))
+    
+    # Información de Ubicación y Producto
+    story.append(Paragraph("INFORMACIÓN DE UBICACIÓN Y PRODUCTO", subheader_style))
+    
+    location_product_data = [
+        ['Campo', 'Valor'],
+        ['POD', format_value(fcl_data.get('POD', ''))],
+        ['POL', format_value(fcl_data.get('POL', ''))],
+        ['Planta', format_value(fcl_data.get('PLANTA', ''))],
+        ['BK', format_value(fcl_data.get('BK', ''))],
+        ['Presentación', format_value(fcl_data.get('PRESENTACION', ''))],
+        ['Pallets', format_value(fcl_data.get('PALLETS', ''))],
+        ['Expediente Fito', format_value(fcl_data.get('EXPEDIENTE FITO.', ''))]
+    ]
+    
+    location_product_table = Table(location_product_data, colWidths=[60*mm, 100*mm])
+    location_product_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#2E86AB')),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 10),
+        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+        ('FONTSIZE', (0, 1), (-1, -1), 9),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f8f9fa')])
+    ]))
+    
+    story.append(location_product_table)
+    story.append(Spacer(1, 20))
+    
+    # Footer
+    story.append(Paragraph("Este documento fue generado automáticamente", 
+                          ParagraphStyle('Footer', parent=styles['Normal'], fontSize=8, 
+                                       textColor=colors.HexColor('#666666'), alignment=1)))
+    story.append(Paragraph("© 2025 APG Packing - Todos los derechos reservados", 
+                          ParagraphStyle('Footer', parent=styles['Normal'], fontSize=8, 
+                                       textColor=colors.HexColor('#666666'), alignment=1)))
+    
+    # Build PDF
+    doc.build(story)
+    
+    buffer.seek(0)
+    return buffer
+
 def show_despacho_detail_view():
     """Mostrar la vista detallada de un FCL de despacho específico"""
     
@@ -339,12 +817,10 @@ def show_despacho_detail_view():
     dff = get_programacion_despachos()
     
     # Convertir fechas
-    if 'FECHA DE DESPACHO' in dff.columns:
-        dff['FECHA DE DESPACHO'] = pd.to_datetime(dff['FECHA DE DESPACHO'], errors='coerce')
-    if 'ETD' in dff.columns:
-        dff['ETD'] = pd.to_datetime(dff['ETD'], errors='coerce')
-    if 'ETA' in dff.columns:
-        dff['ETA'] = pd.to_datetime(dff['ETA'], errors='coerce')
+    date_columns = ['FECHA DE DESPACHO', 'ETD', 'ETA']
+    for col in date_columns:
+        if col in dff.columns:
+            dff[col] = pd.to_datetime(dff[col], errors='coerce')
     
     # Fill NaN values
     dff = dff.fillna("-")
@@ -359,66 +835,130 @@ def show_despacho_detail_view():
     dff = dff[dff["FCL"] != "-"]
     dff = dff[dff["FCL"].notna()]
     
-    # Header con botón de regreso
-    col1, col2 = st.columns([4, 1])
+    # Obtener datos actualizados del FCL específico
+    fcl_details = dff[dff['FCL'] == fcl_number]
+    if not fcl_details.empty:
+        row = fcl_details.iloc[0]  # Usar los datos más actualizados
+    
+    # Header con botón de regreso y botón de impresión
+    col1, col2, col3 = st.columns([3, 1, 1])
     
     with col1:
         st.markdown(f'<h1 class="main-header">🚚 Detalle del Despacho: {fcl_number}</h1>', unsafe_allow_html=True)
     
     with col2:
+        # Generar PDF directamente
+        try:
+            pdf_buffer = generate_despacho_pdf_report(row, fcl_number)
+            filename = f"Despacho_Report_{fcl_number}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+            
+            st.download_button(
+                label="📥 Descargar PDF",
+                data=pdf_buffer.getvalue(),
+                file_name=filename,
+                mime="application/pdf",
+                key=f"download_despacho_pdf_{fcl_number}",
+                help="Descargar reporte de despacho en formato PDF corporativo"
+            )
+        except Exception as e:
+            st.error(f"Error al generar PDF: {str(e)}")
+            if st.button("🖨️ Vista Previa", key="print_button_fallback"):
+                # Fallback: mostrar vista previa HTML si falla el PDF
+                corporate_format = generate_corporate_print_format(row, fcl_number)
+                with st.expander("📄 Vista Previa del Reporte", expanded=True):
+                    st.markdown(corporate_format, unsafe_allow_html=True)
+    
+    with col3:
         if st.button("← Volver a la lista", key="back_button"):
             go_back_to_despacho_list()
     
-    # Información detallada
-    st.markdown("### 📋 Información del Despacho")
+    # Información detallada completa
+    st.markdown("### 📋 Información Completa del Despacho")
     
-    col1, col2 = st.columns(2)
+    # Organizar las columnas por categorías
+    general_info = ['FCL', 'CODIGO', 'CLIENTE', 'EMPRESA', 'CNEE', 'OPERADOR', 'ESTADO']
+    date_info = ['FECHA DE DESPACHO', 'HORA DESP.', 'ETD', 'ETA', 'SEM ETD', 'SEM DESP.']
+    transport_info = ['ENVIO', 'TRASNPORTE', 'NAVE', 'AEROLINEA', 'LINEA NAVIERA', 'ITINERARIO']
+    location_info = ['POD', 'POL', 'PLANTA', 'BK']
+    product_info = ['PRESENTACION', 'PALLETS', 'EXPEDIENTE FITO.']
     
-    with col1:
-        st.markdown("**🚚 Información Básica**")
-        st.write(f"**FCL:** {row['FCL']}")
-        st.write(f"**Cliente:** {row.get('CLIENTE', 'N/A')}")
-        st.write(f"**Empresa:** {row.get('EMPRESA', 'N/A')}")
-        st.write(f"**Tipo de Envío:** {row.get('ENVIO', 'N/A')}")
-        st.write(f"**Estado:** {row.get('ESTADO', 'N/A')}")
-        
-    with col2:
-        st.markdown("**📅 Información de Fechas**")
-        st.write(f"**Fecha de Despacho:** {row['FECHA DE DESPACHO'].strftime('%d/%m/%Y') if pd.notna(row['FECHA DE DESPACHO']) else 'Sin fecha'}")
-        # Agregar más campos de fecha si están disponibles en el dataframe
-        if 'ETD' in row and pd.notna(row.get('ETD')):
-            st.write(f"**ETD:** {row['ETD'].strftime('%d/%m/%Y')}")
-        if 'ETA' in row and pd.notna(row.get('ETA')):
-            st.write(f"**ETA:** {row['ETA'].strftime('%d/%m/%Y')}")
-        if 'PRESENTACION' in row:
-            st.write(f"**Presentación:** {row.get('PRESENTACION', 'N/A')}")
+    # Crear tabs para organizar la información
+    tab1, tab2, tab3, tab4, tab5 = st.tabs(["📋 General", "📅 Fechas", "🚚 Transporte", "📍 Ubicación", "📦 Producto"])
     
-    # Obtener datos detallados del FCL específico
-    fcl_details = dff[dff['FCL'] == fcl_number]
+    with tab1:
+        st.markdown("**Información General**")
+        col1, col2 = st.columns(2)
+        with col1:
+            for i, field in enumerate(general_info[:len(general_info)//2 + 1]):
+                if field in row:
+                    st.write(f"**{field}:** {format_value(row[field])}")
+        with col2:
+            for field in general_info[len(general_info)//2 + 1:]:
+                if field in row:
+                    st.write(f"**{field}:** {format_value(row[field])}")
     
-    st.markdown("### 📋 Registros Detallados del Despacho")
+    with tab2:
+        st.markdown("**Información de Fechas**")
+        col1, col2 = st.columns(2)
+        with col1:
+            for i, field in enumerate(date_info[:len(date_info)//2 + 1]):
+                if field in row:
+                    st.write(f"**{field}:** {format_value(row[field])}")
+        with col2:
+            for field in date_info[len(date_info)//2 + 1:]:
+                if field in row:
+                    st.write(f"**{field}:** {format_value(row[field])}")
     
-    # Mostrar tabla con todos los registros del FCL
-    #if not fcl_details.empty:
-    #    st.dataframe(fcl_details, use_container_width=True)
-    #else:
-    #    st.info("No se encontraron registros detallados para este FCL")
+    with tab3:
+        st.markdown("**Información de Transporte**")
+        col1, col2 = st.columns(2)
+        with col1:
+            for i, field in enumerate(transport_info[:len(transport_info)//2 + 1]):
+                if field in row:
+                    st.write(f"**{field}:** {format_value(row[field])}")
+        with col2:
+            for field in transport_info[len(transport_info)//2 + 1:]:
+                if field in row:
+                    st.write(f"**{field}:** {format_value(row[field])}")
     
-    # Sección de imágenes
-    st.write(fcl_number)
+    with tab4:
+        st.markdown("**Información de Ubicación**")
+        col1, col2 = st.columns(2)
+        with col1:
+            for i, field in enumerate(location_info[:len(location_info)//2 + 1]):
+                if field in row:
+                    st.write(f"**{field}:** {format_value(row[field])}")
+        with col2:
+            for field in location_info[len(location_info)//2 + 1:]:
+                if field in row:
+                    st.write(f"**{field}:** {format_value(row[field])}")
     
-    st.info("📷 No hay imágenes disponibles para este despacho")
+    with tab5:
+        st.markdown("**Información del Producto**")
+        col1, col2 = st.columns(2)
+        with col1:
+            for i, field in enumerate(product_info[:len(product_info)//2 + 1]):
+                if field in row:
+                    st.write(f"**{field}:** {format_value(row[field])}")
+        with col2:
+            for field in product_info[len(product_info)//2 + 1:]:
+                if field in row:
+                    st.write(f"**{field}:** {format_value(row[field])}")
     
-    # Botones de acción
-    col1, col2, col3, col4 = st.columns(4)
+    # Mostrar todas las columnas disponibles en una tabla expandible
+    st.markdown("### 📊 Datos Completos en Tabla")
+    with st.expander("Ver todos los campos en formato tabla"):
+        if not fcl_details.empty:
+            fcl_details = fcl_details.transpose().reset_index()
+            fcl_details.columns = ["", " "]
+            print(fcl_details.columns)
+            st.dataframe(fcl_details, use_container_width=True,hide_index=True)
+        else:
+            st.info("No se encontraron registros detallados para este FCL")
     
-    #with col1:
-    #    if st.button("📥 Exportar PDF", key=f"export_{fcl_number}"):
-    #        st.info("Funcionalidad de exportación PDF en desarrollo")
-    
-    #with col4:
-    #    if st.button("❌ Cerrar", key=f"close_{fcl_number}"):
-    #        go_back_to_despacho_list()
+    # Sección de imágenes (mantenida para futura implementación)
+    st.markdown("### 📸 Imágenes del Despacho")
+    st.info("📷 Funcionalidad de imágenes en desarrollo")
 
 
 def go_back_to_despacho_list():
