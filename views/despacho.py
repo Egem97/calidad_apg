@@ -405,25 +405,9 @@ def show_despacho_detail_view():
     #    st.info("No se encontraron registros detallados para este FCL")
     
     # Sección de imágenes
-    try:
-        img_df = get_img_despacho_data(fcl_number)
-        if img_df is None:
-            img_df = pd.DataFrame(columns=['FCL', 'image_base64'])
-        
-        img_df = img_df[img_df["image_base64"].notna()]
-        img_df = img_df["image_base64"].to_list()
-        
-        st.markdown("### 📸 Imágenes")
-        with st.expander("Imágenes del Despacho"):
-            if len(img_df) > 0:
-                col_img = st.columns(3)
-                for i, img_url in enumerate(img_df):
-                    with col_img[i % 3]:
-                        st.image(img_url, width=200)
-            else:
-                st.info("📷 No hay imágenes disponibles para este despacho")
-    except Exception as e:
-        st.info("📷 No hay imágenes disponibles para este despacho")
+    st.write(fcl_number)
+    
+    st.info("📷 No hay imágenes disponibles para este despacho")
     
     # Botones de acción
     col1, col2, col3, col4 = st.columns(4)
@@ -446,3 +430,24 @@ def go_back_to_despacho_list():
     if hasattr(st.session_state, 'selected_fcl_data'):
         del st.session_state.selected_fcl_data
     st.rerun()
+
+"""
+try:
+        img_df = get_img_despacho_data(fcl_number)
+        if img_df is None:
+            img_df = pd.DataFrame(columns=['FCL', 'image_base64'])
+        
+        img_df = img_df[img_df["image_base64"].notna()]
+        img_df = img_df["image_base64"].to_list()
+        
+        st.markdown("### 📸 Imágenes")
+        with st.expander("Imágenes del Despacho"):
+            if len(img_df) > 0:
+                col_img = st.columns(3)
+                for i, img_url in enumerate(img_df):
+                    with col_img[i % 3]:
+                        st.image(img_url, width=200)
+            else:
+                st.info("📷 No hay imágenes disponibles para este despacho")
+    except Exception as e:
+"""

@@ -438,7 +438,7 @@ def show_fcl_detail_view():
     
         
         img_df = img_df["imagen"].to_list()
-
+        
         # Tabla de datos completos
         
         

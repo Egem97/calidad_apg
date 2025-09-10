@@ -72,10 +72,9 @@ def get_img_despacho_data(fcl = None):
                     SELECT 
                         name, image_base64
                     FROM images_onedrive_despacho
-                    WHERE name ~* 'EXC|GAP|SEF'
-                    AND name LIKE %s
+                    WHERE name LIKE %s
                     
-                """, (f"%{fcl}%",)
+                """, (f"{fcl}",)
         )
         data = cursor.fetchall()
         cursor.close()
