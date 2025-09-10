@@ -58,3 +58,37 @@ def get_img_evacalidad_data(fcl = None):
         if connection:
             connection.close()
         return None
+
+@st.cache_data(show_spinner="Cargando imagenes...", ttl=3600)
+def get_img_despacho_data(fcl = None):
+    """Obtener datos de la tabla para verificación"""
+    connection = create_database_connection()
+    if not connection:
+        return None
+    
+    try:
+        cursor = connection.cursor(cursor_factory=RealDictCursor)
+        cursor.execute("""
+                    SELECT 
+                        name, image_base64
+                    FROM images_onedrive_despacho
+                    WHERE name ~* 'EXC|GAP|SEF'
+                    AND name LIKE %s
+                    
+                """, (f"%{fcl}%",)
+        )
+        data = cursor.fetchall()
+        cursor.close()
+        connection.close()
+        
+        if data:
+            df = pd.DataFrame(data)
+            return df
+        else:
+            return pd.DataFrame()
+            
+    except Exception as e:
+        st.error(f"Error al obtener datos: {e}")
+        if connection:
+            connection.close()
+        return None
