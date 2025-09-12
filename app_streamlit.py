@@ -18,6 +18,7 @@ from views.settings import show_settings
 from views.finished_product import show_finished_product
 
 from views.despacho import show_despacho
+from views.pruebas import show_pruebas
 from utils.config import load_config
 
 from styles import load_css
@@ -139,7 +140,7 @@ def main():
         selected = option_menu(
                     menu_title=None,
                     options=["🏠 Inicio", "🫐 Producto Terminado", "🚚 Despacho"],
-                    icons=["house", "check-circle", "truck"],
+                    icons=["house", "check-circle", "truck", "search"],
                     menu_icon="cast",
                     default_index=0,
                                 styles={
@@ -171,6 +172,8 @@ def main():
             show_finished_product()
     elif selected == "🚚 Despacho":
             show_despacho()
+    elif selected == "🔍 Pruebas":
+            show_pruebas()
 
     #elif selected == "📊 Control de Calidad":
     #    show_quality_control()

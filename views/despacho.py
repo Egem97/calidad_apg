@@ -957,8 +957,27 @@ def show_despacho_detail_view():
             st.info("No se encontraron registros detallados para este FCL")
     
     # Sección de imágenes (mantenida para futura implementación)
-    st.markdown("### 📸 Imágenes del Despacho")
-    st.info("📷 Funcionalidad de imágenes en desarrollo")
+
+    try:
+        img_df = get_img_despacho_data(fcl_number)
+        if img_df is None:
+            img_df = pd.DataFrame(columns=['FCL', 'image_base64'])
+        
+        img_df = img_df[img_df["image_base64"].notna()]
+        img_df = img_df["image_base64"].to_list()
+        
+        st.markdown("### 📸 Imágenes")
+        with st.expander("Imágenes del Despacho"):
+            if len(img_df) > 0:
+                col_img = st.columns(3)
+                for i, img_url in enumerate(img_df):
+                    with col_img[i % 3]:
+                        st.image(img_url, width=200)
+            else:
+                st.info("📷 No hay imágenes disponibles para este despacho")
+    except Exception as e:
+        st.info("📷 No hay imágenes disponibles para este despacho")
+    #st.info("📷 Funcionalidad de imágenes en desarrollo")
 
 
 def go_back_to_despacho_list():

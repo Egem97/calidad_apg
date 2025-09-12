@@ -59,7 +59,7 @@ def get_img_evacalidad_data(fcl = None):
             connection.close()
         return None
 
-@st.cache_data(show_spinner="Cargando imagenes...", ttl=3600)
+#@st.cache_data(show_spinner="Cargando imagenes...")
 def get_img_despacho_data(fcl = None):
     """Obtener datos de la tabla para verificación"""
     connection = create_database_connection()
@@ -72,7 +72,7 @@ def get_img_despacho_data(fcl = None):
                     SELECT 
                         name, image_base64
                     FROM images_onedrive_despacho
-                    WHERE name LIKE %s
+                    WHERE name = %s
                     
                 """, (f"{fcl}",)
         )
