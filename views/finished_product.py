@@ -121,7 +121,8 @@ def clean_data():
         'AGRICOLA BLUE GOLD S.A.C': 'AGRICOLA BLUE GOLD S.A.C.',
         'EXCELLENCE FRUIT S.A.C': "SAN LUCAR S.A.",
         'GAP BERRIES S.A.C': "SAN LUCAR S.A.",
-        'SAN EFISIO S.A.C': "SAN LUCAR S.A."
+        'SAN EFISIO S.A.C': "SAN LUCAR S.A.",
+        'TARA FARMS S.A.C': "SAN LUCAR S.A.",
     }
     df["EMPRESA"] = df["PRODUCTOR"].replace(empresa_mapping)
     
@@ -166,6 +167,7 @@ def show_finished_product():
 
    
     df = df.sort_values(by="FECHA DE PROCESO", ascending=False)
+    #st.dataframe(df)
     # Barra de búsqueda y filtros
     col1, col2,  = st.columns([5, 2])
     
