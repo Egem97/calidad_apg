@@ -185,8 +185,8 @@ def show_finished_product():
     
     df["PRESENTACION"] = df["PRESENTACION"].apply(categorize_presentation)
     
-    resumen_pag_df = df[['N° FCL','FECHA DE PROCESO','SEMANA','VARIEDAD','PRODUCTOR','PRESENTACION']]
-    resumen_pag_df = resumen_pag_df.groupby(["N° FCL","SEMANA","VARIEDAD","PRODUCTOR","PRESENTACION"]).agg({"FECHA DE PROCESO": "max"}).reset_index()
+    resumen_pag_df = df[['N° FCL','FECHA DE PROCESO','SEMANA','VARIEDAD','PRODUCTOR']]
+    resumen_pag_df = resumen_pag_df.groupby(["N° FCL","SEMANA","VARIEDAD","PRODUCTOR"]).agg({"FECHA DE PROCESO": "max"}).reset_index()
     resumen_pag_df["SEMANA"] = resumen_pag_df["SEMANA"].astype(int)
     resumen_pag_df = resumen_pag_df.drop_duplicates()
     resumen_pag_df = resumen_pag_df.reset_index(drop=True)
@@ -220,7 +220,6 @@ def show_finished_product():
                         </p>
                         <p style="margin: 2px 0; font-size: 13px; color: var(--text-color, #666); opacity: 0.9;"><strong>Variedad:</strong> {row2['VARIEDAD']}</p>
                         <p style="margin: 2px 0; font-size: 13px; color: var(--text-color, #666); opacity: 0.9;"><strong>Productor:</strong> {row2['PRODUCTOR']}</p>
-                        <p style="margin: 2px 0; font-size: 13px; color: var(--text-color, #666); opacity: 0.9;"><strong>Presentación:</strong> {row2['PRESENTACION']}</p>
                     </div>
                 </div>
                 """, unsafe_allow_html=True)

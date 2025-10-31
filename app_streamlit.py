@@ -15,7 +15,7 @@ from views.home import show_home
 from views.quality_control import show_quality_control
 from views.reports import show_reports
 from views.settings import show_settings
-from views.finished_product import show_finished_product
+from views.muestra_calidad import muestras_calidad,contramuestras_calidad
 
 from views.despacho import show_despacho
 from views.pruebas import show_pruebas
@@ -72,8 +72,8 @@ def login_form():
     
     
     # Logo centrado
-    st.markdown('<div class="logo"><img src="http://34.136.15.241:3000/logo.png" alt="Logo" style="width: 70px; height: auto;"></div>', unsafe_allow_html=True)
-    st.markdown('<div class="title" style="letter-spacing: -.015em;"><b class="colorT1" style="color:#1f2937;">Bien</b><b class="colorT2" style="color:#1f2937;">venido</b></div>', unsafe_allow_html=True)
+    #st.markdown('<div class="logo"><img src="http://34.136.15.241:3000/logo.png" alt="Logo" style="width: 70px; height: auto;"></div>', unsafe_allow_html=True)
+    #st.markdown('<div class="title" style="letter-spacing: -.015em;"><b class="colorT1" style="color:#1f2937;">Bien</b><b class="colorT2" style="color:#1f2937;">venido</b></div>', unsafe_allow_html=True)
     # Título de bienvenida
     
     
@@ -109,7 +109,7 @@ def main():
     # Configurar página
     st.set_page_config(
         page_title="APG PACKING",
-        page_icon="🔍",
+        page_icon="./assets/logo.jpg",
         layout="wide",
         initial_sidebar_state="auto"
     )
@@ -139,8 +139,8 @@ def main():
         # Menú de navegación
         selected = option_menu(
                     menu_title=None,
-                    options=["🏠 Inicio", "🫐 Producto Terminado", "🚚 Despacho"],
-                    icons=["house", "check-circle", "truck", "search"],
+                    options=["🏠 Inicio", "🫐 Muestras PT"],
+                    icons=["house", "check-circle"],
                     menu_icon="cast",
                     default_index=0,
                                 styles={
@@ -168,10 +168,12 @@ def main():
             # Contenido principal
     if selected == "🏠 Inicio":
             show_home()
-    elif selected == "🫐 Producto Terminado":
-            show_finished_product()
-    elif selected == "🚚 Despacho":
-            show_despacho()
+    elif selected == "🫐 Muestras PT":
+            muestras_calidad()
+    #elif selected == "🫐 Contramuestra PT":
+    #        contramuestras_calidad()
+    #elif selected == "🚚 Despacho":
+    #        show_despacho()
     elif selected == "🔍 Pruebas":
             show_pruebas()
 

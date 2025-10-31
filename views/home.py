@@ -21,8 +21,8 @@ def show_home():
     with col1:
         st.markdown('<h4>ℹ️ Información del Sistema</h4>', unsafe_allow_html=True)
         st.info("""
-        - **Versión:** 1.0.0
-        - **Última actualización:** 2025-09-01
+        - **Versión:** 2.0.0
+        - **Última actualización:** 2025-10-27
         - **Estado:** Operativo
        
         """)
