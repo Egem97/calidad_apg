@@ -129,3 +129,4 @@ dmypy.json
 .pyre/
 config.yaml
 nifty-might-269005-cd303aaaa33f.json
+bd_img.parquet

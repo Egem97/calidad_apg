@@ -127,7 +127,7 @@ def clean_data():
     numeric_columns = df.select_dtypes(include=['float64', 'int64']).columns
     df[numeric_columns] = df[numeric_columns].fillna(0)
 
-    df = df[df["EMPRESA"] == "SAN LUCAR S.A."]
+    #df = df[df["EMPRESA"] == "SAN LUCAR S.A."]
     df = df.sort_values(by="FECHA DE PROCESO", ascending=False)
     df["PRESENTACION"] = df["PRESENTACION"].str.upper()
     df["PRESENTACION"] = df["PRESENTACION"].str.replace(" ", "")
@@ -144,7 +144,7 @@ def muestras_calidad():
     df = clean_data()
 
     with col_head_2:
-        search_term = st.selectbox("Buscar FCL", df["N° FCL"].unique(),index=None,placeholder="Seleccione N° FCL")
+        search_term = st.selectbox("Buscar FCL", sorted(df["N° FCL"].unique()),index=None,placeholder="Seleccione N° FCL")
     #st.title("Evaluación de Producto Terminado")
     
     
@@ -206,13 +206,14 @@ def muestras_calidad():
             )
          
         try:
+            img_df = pd.read_parquet("./img/bd_img.parquet")
+            img_df = img_df[img_df["folder_name"] == search_term]
+            #img_df = get_img_evacalidad_data(search_term)
             
-            img_df = get_img_evacalidad_data(search_term)
-            
-            if img_df is None:
-                img_df = pd.DataFrame(columns=['N° FCL','imagen'])
-            img_df = img_df[img_df["imagen"].notna()]
-            img_df = img_df["imagen"].to_list()
+            #if img_df is None:
+            #    img_df = pd.DataFrame(columns=['N° FCL','imagen'])
+            img_df = img_df[img_df["image_base64"].notna()]
+            img_df = img_df["image_base64"].to_list()
 
             st.markdown("### 📸 Imágenes")
             with st.expander("Imágenes"):

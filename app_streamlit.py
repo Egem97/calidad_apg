@@ -16,6 +16,7 @@ from views.quality_control import show_quality_control
 from views.reports import show_reports
 from views.settings import show_settings
 from views.muestra_calidad import muestras_calidad,contramuestras_calidad
+from views.upload import share_img
 
 from views.despacho import show_despacho
 from views.pruebas import show_pruebas
@@ -139,8 +140,8 @@ def main():
         # Menú de navegación
         selected = option_menu(
                     menu_title=None,
-                    options=["🏠 Inicio", "🫐 Muestras PT"],
-                    icons=["house", "check-circle"],
+                    options=["🏠 Inicio", "🫐 Muestras PT","Upload"],
+                    icons=["house", "check-circle","upload"],
                     menu_icon="cast",
                     default_index=0,
                                 styles={
@@ -176,6 +177,8 @@ def main():
     #        show_despacho()
     elif selected == "🔍 Pruebas":
             show_pruebas()
+    elif selected == "Upload":
+            share_img()
 
     #elif selected == "📊 Control de Calidad":
     #    show_quality_control()
