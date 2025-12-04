@@ -193,10 +193,10 @@ class QualityControlReportGenerator:
             # Add logo in top right corner of first page only
             try:
                 logo_paths = [
-                    "assets/sanlucar_logo.png",
-                    "./assets/sanlucar_logo.png",
-                    "../assets/sanlucar_logo.png",
-                    "sanlucar_logo.png"
+                    #"assets/sanlucar_logo.png",
+                    #"./assets/sanlucar_logo.png",
+                    #"../assets/sanlucar_logo.png",
+                    #"sanlucar_logo.png"
                 ]
                 
                 logo_path = None
@@ -263,6 +263,7 @@ class QualityControlReportGenerator:
             ['FCL:', str(row_data.get('N° FCL', 'N/A')),'Fecha Proceso:', row_data.get('FECHA DE PROCESO', '').strftime('%d/%m/%Y') if pd.notna(row_data.get('FECHA DE PROCESO')) else 'N/A'],
             [ 'Presentación:', row_data.get('PRESENTACION', ''), 'Semana:', str(row_data.get('SEMANA', 'N/A'))],
             ['Productor:', str(row_data.get('PRODUCTOR', 'N/A')), 'Tipo:', str(row_data.get('TIPO DE PRODUCTO', 'N/A'))],
+            ['Fundo:', str(row_data.get('FUNDO', 'N/A'))],
             ['Variedad:', str(row_data.get('VARIEDAD', 'N/A')), 'Destino:', str(row_data.get('DESTINO', 'N/A'))],
             ['Brix:', str(row_data.get('BRIX', 'N/A')), 'Acidez:', str(row_data.get('ACIDEZ', 'N/A'))],
            # ['Módulo:', str(row_data.get('MODULO', 'N/A')), 'TUF:', str(row_data.get('TUF', 'N/A'))],

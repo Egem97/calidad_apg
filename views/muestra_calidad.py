@@ -139,7 +139,7 @@ def muestras_calidad():
     #st.markdown('<h1 class="main-header">🫐 Evaluación de Producto Terminado</h1>', unsafe_allow_html=True)
     col_head_1,col_head_2 = st.columns([3,1])
     with col_head_1:
-        st.title("🫐 Evaluación de Producto Terminado",)
+        st.title("🫐 Evaluación de Producto Terminado" ,)
 
     df = clean_data()
 
