@@ -284,7 +284,7 @@ class QualityControlReportGenerator:
         
         # Quality evaluation data for this specific row
         story.append(Paragraph("", self.subheader_style))
-        story.append(Spacer(1, 10))
+        story.append(Spacer(1, 9))
         
         # Quality defects for this row
         quality_defects_data = [
