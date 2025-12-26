@@ -300,12 +300,12 @@ class QualityControlReportGenerator:
             ['Restos Florales', f"{row_data.get('RESTOS FLORALES', 0):.1f}%", 'Blanda Severa', f"{row_data.get('BLANDA SEVERA', 0):.1f}%"],
             ['Halo Verde', f"{row_data.get('HALO VERDE', 0):.1f}%", 'Blanda Moderada', f"{row_data.get('BLANDA MODERADO', 0):.1f}%"],
             ['Picado', f"{row_data.get('PICADO', 0):.1f}%", 'Excreta de Ave', f"{row_data.get('EXCRETA DE AVE', 0):.1f}%"],
-            ['Bajo Calibre', f"{row_data.get('BAJO CALIBRE', 0):.1f}%", 'Hongos', f"{row_data.get('HONGOS', 0):.1f}%"],
+            ['Bajo Calibre', f"{row_data.get('PRECALIBRE', 0):.1f}%", 'Hongos', f"{row_data.get('HONGOS', 0):.1f}%"],
             ['Chanchito Blanco', f"{row_data.get('CHANCHITO BLANCO', 0):.1f}%", 'Pudricion', f"{row_data.get('PUDRICION', 0):.1f}%"],
             ['F. Mojado', f"{row_data.get('F. MOJADA', 0):.1f}%", 'Baya Reventada', f"{row_data.get('BAYA REVENTADA', 0):.1f}%"],
             ['Daño de Trips', f"{row_data.get('DAÑO DE TRIPS', 0):.1f}%", 'Baya Colapsada', f"{row_data.get('BAYA COLAPSADA', 0):.1f}%"],
-            ['Precalibre',f"{row_data.get('PRECALIBRE', 0):.1f}%", 'Presencia de Larva', f"{row_data.get('PRESENCIA DE LARVA', 0):.1f}%"],
-            ['Otros', f"{row_data.get('OTROS', 0):.1f}%", 'Exudation', f"{row_data.get('EXUDACION', 0):.1f}%"],
+            ['Otros',f"{row_data.get('OTROS', 0):.1f}%", 'Presencia de Larva', f"{row_data.get('PRESENCIA DE LARVA', 0):.1f}%"],
+            ['','' , 'Exudation', f"{row_data.get('EXUDACION', 0):.1f}%"],
             ['', '', 'Otros 2', f"{row_data.get('OTROS2', 0):.1f}%"],
         ]
         
