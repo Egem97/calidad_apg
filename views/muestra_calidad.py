@@ -140,7 +140,12 @@ def muestras_calidad():
     col_head_1,col_head_2 = st.columns([3,1])
     with col_head_1:
         st.title("🫐 Evaluación de Producto Terminado" ,)
-
+    #dff_img = pd.read_parquet("./img/bd_img.parquet")
+    #dff_img["folder_name"] = dff_img["folder_name"].str.upper()
+    #dff_img["folder_name"] = dff_img["folder_name"].str.replace("-TWN009", "")
+    #dff_img["folder_name"] = dff_img["folder_name"].str.replace(" TWN009", "")
+    #dff_img.to_parquet("./img/bd_img.parquet", index=False)
+    #st.dataframe(dff_img)
     df = clean_data()
 
     with col_head_2:
